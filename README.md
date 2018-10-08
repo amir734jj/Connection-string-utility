@@ -1,4 +1,4 @@
-# ConnectionStringUtility
+# Connection-string-utility
 
 A simple utility that makes interactions with connection strings easier
 
