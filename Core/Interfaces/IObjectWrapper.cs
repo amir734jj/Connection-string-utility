@@ -8,6 +8,8 @@ namespace Core.Interfaces
         
         Dictionary<string, string> CustomProperties { get; }
 
+        IObjectWrapper<T> Delete(string key);
+        
         IObjectWrapper<T> Set(string key, string value);
 
         Dictionary<string, string> Flatten();

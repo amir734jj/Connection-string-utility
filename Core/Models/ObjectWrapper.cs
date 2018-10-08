@@ -12,8 +12,16 @@ namespace Core.Models
         /// </summary>
         private readonly Type _type;
 
+        /// <summary>
+        /// Custom converters
+        /// </summary>
         private readonly List<IPropertyConverter> _converters;
 
+        /// <summary>
+        /// Deleted props
+        /// </summary>
+        private readonly List<string> _deletedProps = new List<string>();
+        
         /// <summary>
         /// Original object properties
         /// </summary>
@@ -45,6 +53,18 @@ namespace Core.Models
             Value = value;
             _type = typeof(T);
             _converters = converters;
+        }
+
+        /// <summary>
+        /// Delete property
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public IObjectWrapper<T> Delete(string key)
+        {
+            _deletedProps.Add(key);
+
+            return this;
         }
 
         /// <summary>
@@ -85,6 +105,7 @@ namespace Core.Models
             return CustomProperties
                 .Concat(_type.GetProperties()
                     .Select(x => new KeyValuePair<string, string>(x.Name, SafelyToString(x.PropertyType, x.GetValue(Value)))))
+                .Where(x => !_deletedProps.Contains(x.Key))
                 .ToDictionary(x => x.Key, x => x.Value);
         }
 
