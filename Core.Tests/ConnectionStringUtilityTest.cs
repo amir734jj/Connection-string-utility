@@ -14,22 +14,20 @@ namespace Core.Tests
 
         public ConnectionStringUtilityTest()
         {
-            _utility = ConnectionStringUtility<TestModel>.New;
+            _utility = ConnectionStringUtility<TestModel>.New
+                .AddTypeConverter<Guid>(PropertyConverterBuilderInstance.New<Guid>()
+                    .SetCanConvert(x => x == typeof(Guid))
+                    .SetParse(x => Guid.Parse(x))
+                    .SetToString(x => x.ToString())
+                    .Build());
+
             _fixture = new Fixture();
         }
-        
+
         [Fact]
         public void Test__Cycle()
         {
             // Arrange
-            var guidConverter = PropertyConverterBuilderInstance.New<Guid>()
-                .SetCanConvert(x => x == typeof(Guid))
-                .SetParse(x => Guid.Parse(x))
-                .SetToString(x => x.ToString())
-                .Build();
-
-            _utility.AddTypeConverter<Guid>(guidConverter);
-            
             var instance = _fixture.Create<TestModel>();
 
             // Act
@@ -37,6 +35,50 @@ namespace Core.Tests
 
             // Assert
             Assert.Equal(instance, result, TestModelEqualityComparer.TestModelComparer);
+        }
+        
+        [Fact]
+        public void Test__Set_Native()
+        {
+            // Arrange
+            var value = _fixture.Create<string>();
+            var instance = _fixture.Create<TestModel>();
+
+            // Act
+            var result = ((ObjectWrapper<TestModel>) instance)
+                .Set(x => x.Prop1, value);
+
+            // Assert
+            Assert.Contains(result.CustomProperties, pair => pair.Key == "Prop1" && pair.Value == value);
+        }
+
+        [Fact]
+        public void Test__Set_Custom()
+        {
+            // Arrange
+            var instance = _fixture.Create<TestModel>();
+
+            // Act
+            var result = ((ObjectWrapper<TestModel>) instance)
+                .Set("Key", "Value");
+
+            // Assert
+            Assert.Contains(result.CustomProperties, pair => pair.Key == "Key" && pair.Value == "Value");
+        }
+        
+        [Fact]
+        public void Test__Delete()
+        {
+            // Arrange
+            var instance = _fixture.Create<TestModel>();
+
+            // Act
+            var result = ((ObjectWrapper<TestModel>) instance)
+                .Delete(x => x.Prop1)
+                .Flatten();
+
+            // Assert
+            Assert.DoesNotContain(result, pair => pair.Key == "Prop1");
         }
     }
 }

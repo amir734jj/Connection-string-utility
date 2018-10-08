@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Core.Interfaces;
+using InfoViaLinq;
+using InfoViaLinq.Interfaces;
 
 namespace Core.Models
 {
@@ -21,6 +24,11 @@ namespace Core.Models
         /// Deleted props
         /// </summary>
         private readonly List<string> _deletedProps = new List<string>();
+        
+        /// <summary>
+        /// Initialize the utility
+        /// </summary>
+        private readonly IInfoViaLinq<T> _infoViaLinq = new InfoViaLinq<T>();
         
         /// <summary>
         /// Original object properties
@@ -68,6 +76,16 @@ namespace Core.Models
         }
 
         /// <summary>
+        /// Lambda property selector
+        /// </summary>
+        /// <param name="propSelector"></param>
+        /// <returns></returns>
+        public IObjectWrapper<T> Delete(Expression<Func<T, object>> propSelector)
+        {
+            return Delete(_infoViaLinq.PropLambda(propSelector).GetPropertyName());
+        }
+
+        /// <summary>
         /// Sets the property
         /// </summary>
         /// <param name="key"></param>
@@ -94,6 +112,17 @@ namespace Core.Models
 
             // Return for chaining
             return this;
+        }
+
+        /// <summary>
+        /// Lambda property selector
+        /// </summary>
+        /// <param name="propSelector"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public IObjectWrapper<T> Set(Expression<Func<T, object>> propSelector, string value)
+        {
+            return Set(_infoViaLinq.PropLambda(propSelector).GetPropertyName(), value);
         }
 
         /// <summary>
@@ -130,7 +159,7 @@ namespace Core.Models
         /// <returns></returns>
         private string SafelyToString(Type type, object value)
         {
-            var converter = _converters.FirstOrDefault(x => x.CanConvert(_type));
+            var converter = _converters.FirstOrDefault(x => x.CanConvert(type));
 
             return converter != null ? converter.ToString(value) : value.ToString();
         }
