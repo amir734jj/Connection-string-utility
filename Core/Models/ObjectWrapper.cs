@@ -165,7 +165,7 @@ namespace Core.Models
         }
         
         /// <summary>
-        /// Implicit cast value to object wrapper
+        /// Explicit cast value to object wrapper
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -175,7 +175,7 @@ namespace Core.Models
         }
         
         /// <summary>
-        /// Implicit cast object wrapper to value
+        /// Explicit cast object wrapper to value
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>

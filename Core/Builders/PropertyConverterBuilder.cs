@@ -18,7 +18,7 @@ namespace Core.Builders
         /// <summary>
         /// Can convert handler
         /// </summary>
-        private Func<Type, bool> _canConvertHandler = _ => false;
+        private readonly Func<Type, bool> _canConvertHandler;
 
         /// <summary>
         /// Parse handler
@@ -29,13 +29,14 @@ namespace Core.Builders
         /// ToString handler
         /// </summary>
         private Func<object, string> _toStringHandler = @object => @object.ToString();
-        
+
         /// <summary>
-        /// Set the handler
+        /// Set the converter
         /// </summary>
-        /// <param name="handler"></param>
-        /// <returns></returns>
-        public PropertyConverterBuilder<T> SetCanConvert(Func<Type, bool> handler) => Run(() => _canConvertHandler = handler, this);
+        public PropertyConverterBuilder()
+        {
+            _canConvertHandler = type => type == typeof(T);
+        }
         
         /// <summary>
         /// Set the handler

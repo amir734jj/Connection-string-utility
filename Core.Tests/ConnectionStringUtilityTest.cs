@@ -14,9 +14,8 @@ namespace Core.Tests
 
         public ConnectionStringUtilityTest()
         {
-            _utility = ConnectionStringUtility<TestModel>.New
+            _utility = ConnectionStringUtility<TestModel>.New()
                 .AddTypeConverter<Guid>(PropertyConverterBuilderInstance.New<Guid>()
-                    .SetCanConvert(x => x == typeof(Guid))
                     .SetParse(x => Guid.Parse(x))
                     .SetToString(x => x.ToString())
                     .Build());
@@ -49,7 +48,7 @@ namespace Core.Tests
                 .Set(x => x.Prop1, value);
 
             // Assert
-            Assert.Contains(result.CustomProperties, pair => pair.Key == "Prop1" && pair.Value == value);
+            Assert.Contains(result.Flatten(), pair => pair.Key == "Prop1" && pair.Value == value);
         }
 
         [Fact]

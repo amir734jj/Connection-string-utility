@@ -7,18 +7,18 @@ using Core.Models;
 
 namespace Core
 {
-    public class ConnectionStringUtility<T> : IConnectionStringUtility<T> where T: new()
+    public class ConnectionStringUtility<T> : IConnectionStringUtility<T> where T : new()
     {
         private const char Delimiter = ';';
-        
+
         private const char EqualityChar = '=';
 
         private readonly List<IPropertyConverter> _converters = new List<IPropertyConverter>();
-        
+
         /// <summary>
         /// Static instance
         /// </summary>
-        public static IConnectionStringUtility<T> New => new ConnectionStringUtility<T>();
+        public static IConnectionStringUtility<T> New() => new ConnectionStringUtility<T>();
 
         /// <summary>
         /// Parses a connection string into an instance
@@ -33,18 +33,15 @@ namespace Core
             // Get values splitted by delimiter
             var values = str.Split(Delimiter);
 
-            // If values length is not even then something is wrong
-            if (values.Length % 2 != 0)
-            {
-                throw new Exception("ConnectionString is not valid");
-            }
-
             // Separate by '='
             values = values.Select(x => x.Split(EqualityChar))
                 .Select(x => new[] {x.FirstOrDefault(), x.LastOrDefault()})
+                .Select(x => x.Where(y => y != null).ToList())
+                // If values length is not even then something is wrong
+                .Select(x => x.Count % 2 != 0 ? throw new Exception("ConnectionString is not valid") : x)
                 .SelectMany(x => x)
                 .ToArray();
-            
+
             // Populate the resulting object
             Enumerable.Range(0, values.Length / 2)
                 .Select(i => new KeyValuePair<string, string>(values[i * 2], values[i * 2 + 1]))
@@ -53,7 +50,7 @@ namespace Core
             // Return the instance
             return instance;
         }
-        
+
         /// <summary>
         /// Converts the instance to connection string
         /// </summary>
